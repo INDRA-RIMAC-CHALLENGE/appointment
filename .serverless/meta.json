@@ -30,8 +30,9 @@
         "environment": {
           "NODE_ENV": "production",
           "NODE_PORT": "3000",
-          "AWS_S3_BUCKET": "hola",
-          "AWS_DYNAMO_TABLE": "AppointmentTable"
+          "AWS_SNS_TOPIC_ARN": {
+            "Ref": "AppointmentTopic"
+          }
         },
         "versionFunctions": true,
         "compiledCloudFormationTemplate": {
@@ -139,7 +140,7 @@
               "Properties": {
                 "Code": {
                   "S3Bucket": "serverless-framework-deployments-us-east-1-ba990dcd-bd9c",
-                  "S3Key": "serverless/rimac-nest-serverless/production/1745567056981-2025-04-25T07:44:16.981Z/api.zip"
+                  "S3Key": "serverless/rimac-nest-serverless/production/1745584683472-2025-04-25T12:38:03.472Z/api.zip"
                 },
                 "Handler": "dist/lambda.handler",
                 "Runtime": "nodejs18.x",
@@ -150,8 +151,9 @@
                   "Variables": {
                     "NODE_ENV": "production",
                     "NODE_PORT": "3000",
-                    "AWS_S3_BUCKET": "hola",
-                    "AWS_DYNAMO_TABLE": "AppointmentTable"
+                    "AWS_SNS_TOPIC_ARN": {
+                      "Ref": "AppointmentTopic"
+                    }
                   }
                 },
                 "Role": {
@@ -165,14 +167,14 @@
                 "ApiLogGroup"
               ]
             },
-            "ApiLambdaVersions3Qjz2JCyfRtRemvXyagpwbsMXqKs5mNbSTWhKIsIAU": {
+            "ApiLambdaVersionQPkT1uDNhzIQnEasSEKQlAPkWI05JEwWSJ9IiIj09DA": {
               "Type": "AWS::Lambda::Version",
               "DeletionPolicy": "Retain",
               "Properties": {
                 "FunctionName": {
                   "Ref": "ApiLambdaFunction"
                 },
-                "CodeSha256": "betCtx8e0p93vzsP+iIm4r3qIZ3c6vje/GXMdzFmT2M="
+                "CodeSha256": "K5SeOMHTatmJNXbWBEYmAB3pspcoEtWJXNqN0yKrU4Y="
               }
             },
             "ApiGatewayRestApi": {
@@ -297,7 +299,7 @@
                 "ApiLambdaPermissionApiGateway"
               ]
             },
-            "ApiGatewayDeployment1745567011267": {
+            "ApiGatewayDeployment1745584643993": {
               "Type": "AWS::ApiGateway::Deployment",
               "Properties": {
                 "RestApiId": {
@@ -373,6 +375,12 @@
                   }
                 ]
               }
+            },
+            "AppointmentTopic": {
+              "Type": "AWS::SNS::Topic",
+              "Properties": {
+                "TopicName": "AppointmentTopic"
+              }
             }
           },
           "Outputs": {
@@ -385,7 +393,7 @@
             "ApiLambdaFunctionQualifiedArn": {
               "Description": "Current Lambda function version",
               "Value": {
-                "Ref": "ApiLambdaVersions3Qjz2JCyfRtRemvXyagpwbsMXqKs5mNbSTWhKIsIAU"
+                "Ref": "ApiLambdaVersionQPkT1uDNhzIQnEasSEKQlAPkWI05JEwWSJ9IiIj09DA"
               },
               "Export": {
                 "Name": "sls-rimac-nest-serverless-production-ApiLambdaFunctionQualifiedArn"
@@ -448,7 +456,7 @@
           "timeout": 30,
           "runtime": "nodejs18.x",
           "vpc": {},
-          "versionLogicalId": "ApiLambdaVersions3Qjz2JCyfRtRemvXyagpwbsMXqKs5mNbSTWhKIsIAU"
+          "versionLogicalId": "ApiLambdaVersionQPkT1uDNhzIQnEasSEKQlAPkWI05JEwWSJ9IiIj09DA"
         }
       },
       "plugins": [
@@ -465,7 +473,7 @@
         ],
         "artifactsS3KeyDirname": "serverless/rimac-nest-serverless/production/code-artifacts",
         "deploymentBucket": "serverless-framework-deployments-us-east-1-ba990dcd-bd9c",
-        "artifactDirectoryName": "serverless/rimac-nest-serverless/production/1745567056981-2025-04-25T07:44:16.981Z"
+        "artifactDirectoryName": "serverless/rimac-nest-serverless/production/1745584683472-2025-04-25T12:38:03.472Z"
       },
       "custom": {
         "serverless-offline": {
@@ -502,6 +510,12 @@
                 }
               ]
             }
+          },
+          "AppointmentTopic": {
+            "Type": "AWS::SNS::Topic",
+            "Properties": {
+              "TopicName": "AppointmentTopic"
+            }
           }
         },
         "Outputs": {}
@@ -532,8 +546,9 @@
       "environment": {
         "NODE_ENV": "production",
         "NODE_PORT": "3000",
-        "AWS_S3_BUCKET": "hola",
-        "AWS_DYNAMO_TABLE": "AppointmentTable"
+        "AWS_SNS_TOPIC_ARN": {
+          "Ref": "AppointmentTopic"
+        }
       },
       "versionFunctions": true,
       "compiledCloudFormationTemplate": {
@@ -641,7 +656,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-us-east-1-ba990dcd-bd9c",
-                "S3Key": "serverless/rimac-nest-serverless/production/1745567056981-2025-04-25T07:44:16.981Z/api.zip"
+                "S3Key": "serverless/rimac-nest-serverless/production/1745584683472-2025-04-25T12:38:03.472Z/api.zip"
               },
               "Handler": "dist/lambda.handler",
               "Runtime": "nodejs18.x",
@@ -652,8 +667,9 @@
                 "Variables": {
                   "NODE_ENV": "production",
                   "NODE_PORT": "3000",
-                  "AWS_S3_BUCKET": "hola",
-                  "AWS_DYNAMO_TABLE": "AppointmentTable"
+                  "AWS_SNS_TOPIC_ARN": {
+                    "Ref": "AppointmentTopic"
+                  }
                 }
               },
               "Role": {
@@ -667,14 +683,14 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersions3Qjz2JCyfRtRemvXyagpwbsMXqKs5mNbSTWhKIsIAU": {
+          "ApiLambdaVersionQPkT1uDNhzIQnEasSEKQlAPkWI05JEwWSJ9IiIj09DA": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "betCtx8e0p93vzsP+iIm4r3qIZ3c6vje/GXMdzFmT2M="
+              "CodeSha256": "K5SeOMHTatmJNXbWBEYmAB3pspcoEtWJXNqN0yKrU4Y="
             }
           },
           "ApiGatewayRestApi": {
@@ -799,7 +815,7 @@
               "ApiLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1745567011267": {
+          "ApiGatewayDeployment1745584643993": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -875,6 +891,12 @@
                 }
               ]
             }
+          },
+          "AppointmentTopic": {
+            "Type": "AWS::SNS::Topic",
+            "Properties": {
+              "TopicName": "AppointmentTopic"
+            }
           }
         },
         "Outputs": {
@@ -887,7 +909,7 @@
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersions3Qjz2JCyfRtRemvXyagpwbsMXqKs5mNbSTWhKIsIAU"
+              "Ref": "ApiLambdaVersionQPkT1uDNhzIQnEasSEKQlAPkWI05JEwWSJ9IiIj09DA"
             },
             "Export": {
               "Name": "sls-rimac-nest-serverless-production-ApiLambdaFunctionQualifiedArn"
@@ -932,7 +954,7 @@
       "serviceProvider": null,
       "instanceParameters": null
     },
-    "serviceRawFile": "service: rimac-nest-serverless\r\n\r\nprovider:\r\n  name: aws\r\n  runtime: nodejs18.x\r\n  profile: default\r\n  region: us-east-1\r\n  stage: production\r\n  memorySize: 512\r\n  timeout: 30\r\n  iamRoleStatements:\r\n    - Effect: Allow\r\n      Action:\r\n        - dynamodb:PutItem\r\n        - dynamodb:GetItem\r\n        - dynamodb:Query\r\n        - dynamodb:Scan\r\n        - dynamodb:UpdateItem\r\n        - dynamodb:DeleteItem\r\n      Resource:\r\n        - arn:aws:dynamodb:us-east-1:*:table/*\r\n  environment:\r\n    NODE_ENV: production\r\n    NODE_PORT: 3000\r\n\r\n    AWS_S3_BUCKET: hola\r\n    AWS_DYNAMO_TABLE: AppointmentTable\r\n\r\nfunctions:\r\n  api:\r\n    handler: dist/lambda.handler\r\n    events:\r\n      - http:\r\n          path: /\r\n          method: ANY\r\n      - http:\r\n          path: /{proxy+}\r\n          method: ANY\r\n\r\nplugins:\r\n  - serverless-jetpack\r\n  - serverless-offline\r\n\r\npackage:\r\n  individually: true\r\n  excludeDevDependencies: true\r\n  patterns:\r\n    - '!node_modules/aws-sdk/**'\r\n    - '!test/**'\r\n    - '!**/*.spec.ts'\r\n\r\ncustom:\r\n  serverless-offline:\r\n    httpPort: 3000\r\n    noPrependStageInUrl: true\r\n    useChildProcesses: true\r\n\r\nresources:\r\n  Resources:\r\n    AppointmentTable:\r\n      Type: AWS::DynamoDB::Table\r\n      Properties:\r\n        TableName: AppointmentTable\r\n        BillingMode: PAY_PER_REQUEST\r\n        KeySchema:\r\n          - AttributeName: insuredId\r\n            KeyType: HASH\r\n          - AttributeName: scheduleId\r\n            KeyType: RANGE\r\n        AttributeDefinitions:\r\n          - AttributeName: insuredId\r\n            AttributeType: S\r\n          - AttributeName: scheduleId\r\n            AttributeType: N\r\n",
+    "serviceRawFile": "service: rimac-nest-serverless\r\n\r\nprovider:\r\n  name: aws\r\n  runtime: nodejs18.x\r\n  profile: default\r\n  region: us-east-1\r\n  stage: production\r\n  memorySize: 512\r\n  timeout: 30\r\n  iamRoleStatements:\r\n    - Effect: Allow\r\n      Action:\r\n        - dynamodb:PutItem\r\n        - dynamodb:GetItem\r\n        - dynamodb:Query\r\n        - dynamodb:Scan\r\n        - dynamodb:UpdateItem\r\n        - dynamodb:DeleteItem\r\n      Resource:\r\n        - arn:aws:dynamodb:us-east-1:*:table/*\r\n  environment:\r\n    NODE_ENV: production\r\n    NODE_PORT: 3000\r\n\r\n    AWS_SNS_TOPIC_ARN:\r\n      Ref: AppointmentTopic\r\n\r\nfunctions:\r\n  api:\r\n    handler: dist/lambda.handler\r\n    events:\r\n      - http:\r\n          path: /\r\n          method: ANY\r\n      - http:\r\n          path: /{proxy+}\r\n          method: ANY\r\n\r\nplugins:\r\n  - serverless-jetpack\r\n  - serverless-offline\r\n\r\npackage:\r\n  individually: true\r\n  excludeDevDependencies: true\r\n  patterns:\r\n    - '!node_modules/aws-sdk/**'\r\n    - '!test/**'\r\n    - '!**/*.spec.ts'\r\n\r\ncustom:\r\n  serverless-offline:\r\n    httpPort: 3000\r\n    noPrependStageInUrl: true\r\n    useChildProcesses: true\r\n\r\nresources:\r\n  Resources:\r\n    AppointmentTable:\r\n      Type: AWS::DynamoDB::Table\r\n      Properties:\r\n        TableName: AppointmentTable\r\n        BillingMode: PAY_PER_REQUEST\r\n        KeySchema:\r\n          - AttributeName: insuredId\r\n            KeyType: HASH\r\n          - AttributeName: scheduleId\r\n            KeyType: RANGE\r\n        AttributeDefinitions:\r\n          - AttributeName: insuredId\r\n            AttributeType: S\r\n          - AttributeName: scheduleId\r\n            AttributeType: N\r\n    AppointmentTopic:\r\n      Type: AWS::SNS::Topic\r\n      Properties:\r\n        TopicName: AppointmentTopic\r\n",
     "command": [
       "deploy"
     ],
@@ -1073,7 +1095,7 @@
           "Properties": {
             "Code": {
               "S3Bucket": "serverless-framework-deployments-us-east-1-ba990dcd-bd9c",
-              "S3Key": "serverless/rimac-nest-serverless/production/1745567056981-2025-04-25T07:44:16.981Z/api.zip"
+              "S3Key": "serverless/rimac-nest-serverless/production/1745584683472-2025-04-25T12:38:03.472Z/api.zip"
             },
             "Handler": "dist/lambda.handler",
             "Runtime": "nodejs18.x",
@@ -1084,8 +1106,9 @@
               "Variables": {
                 "NODE_ENV": "production",
                 "NODE_PORT": "3000",
-                "AWS_S3_BUCKET": "hola",
-                "AWS_DYNAMO_TABLE": "AppointmentTable"
+                "AWS_SNS_TOPIC_ARN": {
+                  "Ref": "AppointmentTopic"
+                }
               }
             },
             "Role": {
@@ -1099,14 +1122,14 @@
             "ApiLogGroup"
           ]
         },
-        "ApiLambdaVersions3Qjz2JCyfRtRemvXyagpwbsMXqKs5mNbSTWhKIsIAU": {
+        "ApiLambdaVersionQPkT1uDNhzIQnEasSEKQlAPkWI05JEwWSJ9IiIj09DA": {
           "Type": "AWS::Lambda::Version",
           "DeletionPolicy": "Retain",
           "Properties": {
             "FunctionName": {
               "Ref": "ApiLambdaFunction"
             },
-            "CodeSha256": "betCtx8e0p93vzsP+iIm4r3qIZ3c6vje/GXMdzFmT2M="
+            "CodeSha256": "K5SeOMHTatmJNXbWBEYmAB3pspcoEtWJXNqN0yKrU4Y="
           }
         },
         "ApiGatewayRestApi": {
@@ -1231,7 +1254,7 @@
             "ApiLambdaPermissionApiGateway"
           ]
         },
-        "ApiGatewayDeployment1745567011267": {
+        "ApiGatewayDeployment1745584643993": {
           "Type": "AWS::ApiGateway::Deployment",
           "Properties": {
             "RestApiId": {
@@ -1307,6 +1330,12 @@
               }
             ]
           }
+        },
+        "AppointmentTopic": {
+          "Type": "AWS::SNS::Topic",
+          "Properties": {
+            "TopicName": "AppointmentTopic"
+          }
         }
       },
       "Outputs": {
@@ -1319,7 +1348,7 @@
         "ApiLambdaFunctionQualifiedArn": {
           "Description": "Current Lambda function version",
           "Value": {
-            "Ref": "ApiLambdaVersions3Qjz2JCyfRtRemvXyagpwbsMXqKs5mNbSTWhKIsIAU"
+            "Ref": "ApiLambdaVersionQPkT1uDNhzIQnEasSEKQlAPkWI05JEwWSJ9IiIj09DA"
           },
           "Export": {
             "Name": "sls-rimac-nest-serverless-production-ApiLambdaFunctionQualifiedArn"

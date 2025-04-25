@@ -29,8 +29,9 @@
       "environment": {
         "NODE_ENV": "production",
         "NODE_PORT": "3000",
-        "AWS_S3_BUCKET": "hola",
-        "AWS_DYNAMO_TABLE": "AppointmentTable"
+        "AWS_SNS_TOPIC_ARN": {
+          "Ref": "AppointmentTopic"
+        }
       },
       "versionFunctions": true,
       "compiledCloudFormationTemplate": {
@@ -129,7 +130,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-us-east-1-ba990dcd-bd9c",
-                "S3Key": "serverless/rimac-nest-serverless/production/1745567056981-2025-04-25T07:44:16.981Z/api.zip"
+                "S3Key": "serverless/rimac-nest-serverless/production/1745584683472-2025-04-25T12:38:03.472Z/api.zip"
               },
               "Handler": "dist/lambda.handler",
               "Runtime": "nodejs18.x",
@@ -140,8 +141,9 @@
                 "Variables": {
                   "NODE_ENV": "production",
                   "NODE_PORT": "3000",
-                  "AWS_S3_BUCKET": "hola",
-                  "AWS_DYNAMO_TABLE": "AppointmentTable"
+                  "AWS_SNS_TOPIC_ARN": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"AWS_SNS_TOPIC_ARN\"]"
+                  }
                 }
               },
               "Role": {
@@ -155,14 +157,14 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersions3Qjz2JCyfRtRemvXyagpwbsMXqKs5mNbSTWhKIsIAU": {
+          "ApiLambdaVersionQPkT1uDNhzIQnEasSEKQlAPkWI05JEwWSJ9IiIj09DA": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "betCtx8e0p93vzsP+iIm4r3qIZ3c6vje/GXMdzFmT2M="
+              "CodeSha256": "K5SeOMHTatmJNXbWBEYmAB3pspcoEtWJXNqN0yKrU4Y="
             }
           },
           "ApiGatewayRestApi": {
@@ -287,7 +289,7 @@
               "ApiLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1745567011267": {
+          "ApiGatewayDeployment1745584643993": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -363,6 +365,12 @@
                 }
               ]
             }
+          },
+          "AppointmentTopic": {
+            "Type": "AWS::SNS::Topic",
+            "Properties": {
+              "TopicName": "AppointmentTopic"
+            }
           }
         },
         "Outputs": {
@@ -375,7 +383,7 @@
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersions3Qjz2JCyfRtRemvXyagpwbsMXqKs5mNbSTWhKIsIAU"
+              "Ref": "ApiLambdaVersionQPkT1uDNhzIQnEasSEKQlAPkWI05JEwWSJ9IiIj09DA"
             },
             "Export": {
               "Name": "sls-rimac-nest-serverless-production-ApiLambdaFunctionQualifiedArn"
@@ -450,7 +458,7 @@
         "timeout": 30,
         "runtime": "nodejs18.x",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersions3Qjz2JCyfRtRemvXyagpwbsMXqKs5mNbSTWhKIsIAU"
+        "versionLogicalId": "ApiLambdaVersionQPkT1uDNhzIQnEasSEKQlAPkWI05JEwWSJ9IiIj09DA"
       }
     },
     "resources": {
@@ -481,6 +489,12 @@
               }
             ]
           }
+        },
+        "AppointmentTopic": {
+          "Type": "AWS::SNS::Topic",
+          "Properties": {
+            "TopicName": "AppointmentTopic"
+          }
         }
       },
       "Outputs": {}
@@ -508,7 +522,7 @@
         ],
         "artifactsS3KeyDirname": "serverless/rimac-nest-serverless/production/code-artifacts",
         "deploymentBucket": "serverless-framework-deployments-us-east-1-ba990dcd-bd9c",
-        "artifactDirectoryName": "serverless/rimac-nest-serverless/production/1745567056981-2025-04-25T07:44:16.981Z"
+        "artifactDirectoryName": "serverless/rimac-nest-serverless/production/1745584683472-2025-04-25T12:38:03.472Z"
       },
       "custom": {
         "$ref": "$[\"service\"][\"custom\"]"
@@ -523,7 +537,7 @@
   },
   "package": {
     "individually": true,
-    "artifactDirectoryName": "serverless/rimac-nest-serverless/production/1745567056981-2025-04-25T07:44:16.981Z",
+    "artifactDirectoryName": "serverless/rimac-nest-serverless/production/1745584683472-2025-04-25T12:38:03.472Z",
     "artifact": ""
   }
 }

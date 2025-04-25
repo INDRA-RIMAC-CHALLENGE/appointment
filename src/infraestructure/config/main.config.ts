@@ -15,8 +15,8 @@ export interface IEnvConfig {
   AWS_REGION: string;
   AWS_ACCESS_KEY_ID: string;
   AWS_SECRET_ACCESS_KEY: string;
-  AWS_S3_BUCKET: string;
-  AWS_DYNAMO_TABLE: string;
+
+  AWS_SNS_TOPIC_ARN: string;
 }
 
 const validationSchemaConfig = joi
@@ -30,8 +30,8 @@ const validationSchemaConfig = joi
     AWS_REGION: joi.string().required(),
     AWS_ACCESS_KEY_ID: joi.string().required(),
     AWS_SECRET_ACCESS_KEY: joi.string().required(),
-    AWS_S3_BUCKET: joi.string().required(),
-    AWS_DYNAMO_TABLE: joi.string().required(),
+
+    AWS_SNS_TOPIC_ARN: joi.string().required(),
   })
   .unknown(true);
 

@@ -3,10 +3,15 @@ import { CreateAppointmentRequestDto } from 'src/application/dto/appointment/cre
 import { Appointment } from 'src/domain/entity/appointment.entity';
 import { IAppointmentRepository } from 'src/domain/repositories/appointment.repository';
 import { GetAppointmentRequestDto } from 'src/application/dto/appointment/get-appointment.dto';
+import { SnsService } from 'src/external-services/aws/sns.service';
+import { envConfig } from 'src/infraestructure/config/main.config';
 
 @Injectable()
 export class CreateAppointmentHandler {
-  constructor(private readonly appointmentRepository: IAppointmentRepository) {}
+  constructor(
+    private readonly appointmentRepository: IAppointmentRepository,
+    private readonly snsService: SnsService,
+  ) {}
 
   public async handler(
     appointmentDto: CreateAppointmentRequestDto,
@@ -25,6 +30,11 @@ export class CreateAppointmentHandler {
         HttpStatus.FOUND,
       );
 
-    return this.appointmentRepository.createAppointment(appointmentDto);
+    const newAppointment =
+      await this.appointmentRepository.createAppointment(appointmentDto);
+
+    this.snsService.publish(envConfig.AWS_SNS_TOPIC_ARN, newAppointment);
+
+    return newAppointment;
   }
 }

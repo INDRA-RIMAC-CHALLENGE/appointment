@@ -23,8 +23,8 @@ provider:
     NODE_ENV: production
     NODE_PORT: 3000
 
-    AWS_S3_BUCKET: hola
-    AWS_DYNAMO_TABLE: AppointmentTable
+    AWS_SNS_TOPIC_ARN:
+      Ref: AppointmentTopic
 
 functions:
   api:
@@ -72,3 +72,7 @@ resources:
             AttributeType: S
           - AttributeName: scheduleId
             AttributeType: N
+    AppointmentTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: AppointmentTopic
