@@ -1,8 +1,8 @@
 {
   "service": {
-    "service": "rimac-nest-serverless",
+    "service": "rimac-appointment",
     "serviceObject": {
-      "name": "rimac-nest-serverless"
+      "name": "rimac-appointment"
     },
     "provider": {
       "name": "aws",
@@ -21,9 +21,13 @@
             "dynamodb:Query",
             "dynamodb:Scan",
             "dynamodb:UpdateItem",
-            "dynamodb:DeleteItem"
+            "dynamodb:DeleteItem",
+            "sns:Publish"
           ],
-          "Resource": "arn:aws:dynamodb:us-east-1:*:table/*"
+          "Resource": [
+            "arn:aws:dynamodb:us-east-1:*:table/*",
+            "arn:aws:sns:us-east-1:*:AppointmentTopic"
+          ]
         }
       ],
       "environment": {
@@ -41,7 +45,13 @@
           "ApiLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-              "LogGroupName": "/aws/lambda/rimac-nest-serverless-production-api"
+              "LogGroupName": "/aws/lambda/rimac-appointment-production-api"
+            }
+          },
+          "EventHandlerLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/rimac-appointment-production-eventHandler"
             }
           },
           "IamRoleLambdaExecution": {
@@ -69,7 +79,7 @@
                     "Fn::Join": [
                       "-",
                       [
-                        "rimac-nest-serverless",
+                        "rimac-appointment",
                         "production",
                         "lambda"
                       ]
@@ -87,7 +97,7 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/rimac-nest-serverless-production*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/rimac-appointment-production*:*"
                           }
                         ]
                       },
@@ -98,12 +108,28 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/rimac-nest-serverless-production*:*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/rimac-appointment-production*:*:*"
                           }
                         ]
                       },
                       {
                         "$ref": "$[\"service\"][\"provider\"][\"iamRoleStatements\"][0]"
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "sqs:ReceiveMessage",
+                          "sqs:DeleteMessage",
+                          "sqs:GetQueueAttributes"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::GetAtt": [
+                              "SQSFromEventBridge",
+                              "Arn"
+                            ]
+                          }
+                        ]
                       }
                     ]
                   }
@@ -114,7 +140,7 @@
                 "Fn::Join": [
                   "-",
                   [
-                    "rimac-nest-serverless",
+                    "rimac-appointment",
                     "production",
                     {
                       "Ref": "AWS::Region"
@@ -130,11 +156,11 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-us-east-1-ba990dcd-bd9c",
-                "S3Key": "serverless/rimac-nest-serverless/production/1745584683472-2025-04-25T12:38:03.472Z/api.zip"
+                "S3Key": "serverless/rimac-appointment/production/1745597765972-2025-04-25T16:16:05.972Z/api.zip"
               },
               "Handler": "dist/lambda.handler",
               "Runtime": "nodejs18.x",
-              "FunctionName": "rimac-nest-serverless-production-api",
+              "FunctionName": "rimac-appointment-production-api",
               "MemorySize": 512,
               "Timeout": 30,
               "Environment": {
@@ -157,20 +183,62 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersionQPkT1uDNhzIQnEasSEKQlAPkWI05JEwWSJ9IiIj09DA": {
+          "EventHandlerLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-us-east-1-ba990dcd-bd9c",
+                "S3Key": "serverless/rimac-appointment/production/1745597765972-2025-04-25T16:16:05.972Z/eventHandler.zip"
+              },
+              "Handler": "dist/infraestructure/handlers/eventbridge.handler",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "rimac-appointment-production-eventHandler",
+              "MemorySize": 512,
+              "Timeout": 30,
+              "Environment": {
+                "Variables": {
+                  "NODE_ENV": "production",
+                  "NODE_PORT": "3000",
+                  "AWS_SNS_TOPIC_ARN": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"AWS_SNS_TOPIC_ARN\"]"
+                  }
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "EventHandlerLogGroup"
+            ]
+          },
+          "ApiLambdaVersions7hr3th3zQTo9rrSQ4kZ8oPrcRUKy0GdipgsSTmdw": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "K5SeOMHTatmJNXbWBEYmAB3pspcoEtWJXNqN0yKrU4Y="
+              "CodeSha256": "Nhu8uBqk4gW6Laym+FxYrbnlQPp0VtNKd8ErzQLFqYw="
+            }
+          },
+          "EventHandlerLambdaVersionPOgiqhSbbw4Z2ZNukTUsDPivjA8dVx8eRB9y7zMjw": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "EventHandlerLambdaFunction"
+              },
+              "CodeSha256": "Nhu8uBqk4gW6Laym+FxYrbnlQPp0VtNKd8ErzQLFqYw="
             }
           },
           "ApiGatewayRestApi": {
             "Type": "AWS::ApiGateway::RestApi",
             "Properties": {
-              "Name": "production-rimac-nest-serverless",
+              "Name": "production-rimac-appointment",
               "EndpointConfiguration": {
                 "Types": [
                   "EDGE"
@@ -289,7 +357,7 @@
               "ApiLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1745584643993": {
+          "ApiGatewayDeployment1745597696460": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -339,6 +407,28 @@
               }
             }
           },
+          "EventHandlerEventSourceMappingSQSSQSFromEventBridge": {
+            "Type": "AWS::Lambda::EventSourceMapping",
+            "DependsOn": [
+              "IamRoleLambdaExecution"
+            ],
+            "Properties": {
+              "BatchSize": 10,
+              "EventSourceArn": {
+                "Fn::GetAtt": [
+                  "SQSFromEventBridge",
+                  "Arn"
+                ]
+              },
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "EventHandlerLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Enabled": true
+            }
+          },
           "AppointmentTable": {
             "Type": "AWS::DynamoDB::Table",
             "Properties": {
@@ -371,22 +461,37 @@
             "Properties": {
               "TopicName": "AppointmentTopic"
             }
+          },
+          "SQSFromEventBridge": {
+            "Type": "AWS::SQS::Queue",
+            "Properties": {
+              "QueueName": "sqs_eventbridge_to_nest"
+            }
           }
         },
         "Outputs": {
           "ServerlessDeploymentBucketName": {
             "Value": "serverless-framework-deployments-us-east-1-ba990dcd-bd9c",
             "Export": {
-              "Name": "sls-rimac-nest-serverless-production-ServerlessDeploymentBucketName"
+              "Name": "sls-rimac-appointment-production-ServerlessDeploymentBucketName"
             }
           },
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersionQPkT1uDNhzIQnEasSEKQlAPkWI05JEwWSJ9IiIj09DA"
+              "Ref": "ApiLambdaVersions7hr3th3zQTo9rrSQ4kZ8oPrcRUKy0GdipgsSTmdw"
             },
             "Export": {
-              "Name": "sls-rimac-nest-serverless-production-ApiLambdaFunctionQualifiedArn"
+              "Name": "sls-rimac-appointment-production-ApiLambdaFunctionQualifiedArn"
+            }
+          },
+          "EventHandlerLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "EventHandlerLambdaVersionPOgiqhSbbw4Z2ZNukTUsDPivjA8dVx8eRB9y7zMjw"
+            },
+            "Export": {
+              "Name": "sls-rimac-appointment-production-EventHandlerLambdaFunctionQualifiedArn"
             }
           },
           "ServiceEndpoint": {
@@ -412,7 +517,15 @@
               ]
             },
             "Export": {
-              "Name": "sls-rimac-nest-serverless-production-ServiceEndpoint"
+              "Name": "sls-rimac-appointment-production-ServiceEndpoint"
+            }
+          },
+          "AppointmentTopicArn": {
+            "Value": {
+              "Ref": "AppointmentTopic"
+            },
+            "Export": {
+              "Name": "rimac-appointment-topic-arn"
             }
           }
         }
@@ -450,7 +563,7 @@
             }
           }
         ],
-        "name": "rimac-nest-serverless-production-api",
+        "name": "rimac-appointment-production-api",
         "package": {
           "artifact": ".serverless\\api.zip"
         },
@@ -458,7 +571,28 @@
         "timeout": 30,
         "runtime": "nodejs18.x",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersionQPkT1uDNhzIQnEasSEKQlAPkWI05JEwWSJ9IiIj09DA"
+        "versionLogicalId": "ApiLambdaVersions7hr3th3zQTo9rrSQ4kZ8oPrcRUKy0GdipgsSTmdw"
+      },
+      "eventHandler": {
+        "handler": "dist/infraestructure/handlers/eventbridge.handler",
+        "events": [
+          {
+            "sqs": {
+              "arn": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"IamRoleLambdaExecution\"][\"Properties\"][\"Policies\"][0][\"PolicyDocument\"][\"Statement\"][3][\"Resource\"][0]"
+              }
+            }
+          }
+        ],
+        "name": "rimac-appointment-production-eventHandler",
+        "package": {
+          "artifact": ".serverless\\eventHandler.zip"
+        },
+        "memory": 512,
+        "timeout": 30,
+        "runtime": "nodejs18.x",
+        "vpc": {},
+        "versionLogicalId": "EventHandlerLambdaVersionPOgiqhSbbw4Z2ZNukTUsDPivjA8dVx8eRB9y7zMjw"
       }
     },
     "resources": {
@@ -495,14 +629,29 @@
           "Properties": {
             "TopicName": "AppointmentTopic"
           }
+        },
+        "SQSFromEventBridge": {
+          "Type": "AWS::SQS::Queue",
+          "Properties": {
+            "QueueName": "sqs_eventbridge_to_nest"
+          }
         }
       },
-      "Outputs": {}
+      "Outputs": {
+        "AppointmentTopicArn": {
+          "Value": {
+            "Ref": "AppointmentTopic"
+          },
+          "Export": {
+            "Name": "rimac-appointment-topic-arn"
+          }
+        }
+      }
     },
     "configValidationMode": "warn",
     "serviceFilename": "serverless",
     "initialServerlessConfig": {
-      "service": "rimac-nest-serverless",
+      "service": "rimac-appointment",
       "provider": {
         "$ref": "$[\"service\"][\"provider\"]"
       },
@@ -520,9 +669,9 @@
           "!test/**",
           "!**/*.spec.ts"
         ],
-        "artifactsS3KeyDirname": "serverless/rimac-nest-serverless/production/code-artifacts",
+        "artifactsS3KeyDirname": "serverless/rimac-appointment/production/code-artifacts",
         "deploymentBucket": "serverless-framework-deployments-us-east-1-ba990dcd-bd9c",
-        "artifactDirectoryName": "serverless/rimac-nest-serverless/production/1745584683472-2025-04-25T12:38:03.472Z"
+        "artifactDirectoryName": "serverless/rimac-appointment/production/1745597765972-2025-04-25T16:16:05.972Z"
       },
       "custom": {
         "$ref": "$[\"service\"][\"custom\"]"
@@ -537,7 +686,7 @@
   },
   "package": {
     "individually": true,
-    "artifactDirectoryName": "serverless/rimac-nest-serverless/production/1745584683472-2025-04-25T12:38:03.472Z",
+    "artifactDirectoryName": "serverless/rimac-appointment/production/1745597765972-2025-04-25T16:16:05.972Z",
     "artifact": ""
   }
 }

@@ -3,7 +3,7 @@ import { initApplication } from './app';
 
 let cachedServer;
 
-const bootstrapServer = async () => {
+export const bootstrapServer = async () => {
   if (!cachedServer) {
     const [, expressApp] = await initApplication();
     cachedServer = configure({ app: expressApp });

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreateAppointmentRequestDto } from 'src/application/dto/appointment/create-appointment.dto';
 import { Appointment } from 'src/domain/entity/appointment.entity';
 import { IAppointmentRepository } from 'src/domain/repositories/appointment.repository';
@@ -8,6 +8,8 @@ import { envConfig } from 'src/infraestructure/config/main.config';
 
 @Injectable()
 export class CreateAppointmentHandler {
+  private logger: Logger = new Logger(CreateAppointmentHandler.name);
+
   constructor(
     private readonly appointmentRepository: IAppointmentRepository,
     private readonly snsService: SnsService,
@@ -33,7 +35,14 @@ export class CreateAppointmentHandler {
     const newAppointment =
       await this.appointmentRepository.createAppointment(appointmentDto);
 
-    this.snsService.publish(envConfig.AWS_SNS_TOPIC_ARN, newAppointment);
+    this.logger.log(
+      `Publicando notificacion a SNS ${envConfig.AWS_SNS_TOPIC_ARN}`,
+      newAppointment,
+    );
+
+    await this.snsService.publish(envConfig.AWS_SNS_TOPIC_ARN, newAppointment);
+
+    this.logger.log('Notificacion publicada');
 
     return newAppointment;
   }

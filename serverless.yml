@@ -1,4 +1,4 @@
-service: rimac-nest-serverless
+service: rimac-appointment
 
 provider:
   name: aws
@@ -17,12 +17,13 @@ provider:
         - dynamodb:Scan
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
+        - sns:Publish
       Resource:
         - arn:aws:dynamodb:us-east-1:*:table/*
+        - arn:aws:sns:us-east-1:*:AppointmentTopic
   environment:
     NODE_ENV: production
     NODE_PORT: 3000
-
     AWS_SNS_TOPIC_ARN:
       Ref: AppointmentTopic
 
@@ -36,6 +37,12 @@ functions:
       - http:
           path: /{proxy+}
           method: ANY
+  eventHandler:
+    handler: dist/infraestructure/handlers/eventbridge.handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [SQSFromEventBridge, Arn]
 
 plugins:
   - serverless-jetpack
@@ -72,7 +79,20 @@ resources:
             AttributeType: S
           - AttributeName: scheduleId
             AttributeType: N
+
     AppointmentTopic:
       Type: AWS::SNS::Topic
       Properties:
         TopicName: AppointmentTopic
+
+    SQSFromEventBridge:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: sqs_eventbridge_to_nest
+
+  Outputs:
+    AppointmentTopicArn:
+      Value:
+        Ref: AppointmentTopic
+      Export:
+        Name: rimac-appointment-topic-arn
