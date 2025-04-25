@@ -1,0 +1,74 @@
+service: rimac-nest-serverless
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  profile: default
+  region: us-east-1
+  stage: production
+  memorySize: 512
+  timeout: 30
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - arn:aws:dynamodb:us-east-1:*:table/*
+  environment:
+    NODE_ENV: production
+    NODE_PORT: 3000
+
+    AWS_S3_BUCKET: hola
+    AWS_DYNAMO_TABLE: AppointmentTable
+
+functions:
+  api:
+    handler: dist/lambda.handler
+    events:
+      - http:
+          path: /
+          method: ANY
+      - http:
+          path: /{proxy+}
+          method: ANY
+
+plugins:
+  - serverless-jetpack
+  - serverless-offline
+
+package:
+  individually: true
+  excludeDevDependencies: true
+  patterns:
+    - '!node_modules/aws-sdk/**'
+    - '!test/**'
+    - '!**/*.spec.ts'
+
+custom:
+  serverless-offline:
+    httpPort: 3000
+    noPrependStageInUrl: true
+    useChildProcesses: true
+
+resources:
+  Resources:
+    AppointmentTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AppointmentTable
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: insuredId
+            KeyType: HASH
+          - AttributeName: scheduleId
+            KeyType: RANGE
+        AttributeDefinitions:
+          - AttributeName: insuredId
+            AttributeType: S
+          - AttributeName: scheduleId
+            AttributeType: N
