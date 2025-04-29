@@ -81,11 +81,20 @@
                     "dynamodb:Scan",
                     "dynamodb:UpdateItem",
                     "dynamodb:DeleteItem",
-                    "sns:Publish"
+                    "sns:Publish",
+                    "sqs:ReceiveMessage",
+                    "sqs:DeleteMessage",
+                    "sqs:GetQueueAttributes"
                   ],
                   "Resource": [
-                    "arn:aws:dynamodb:us-east-1:*:table/*",
-                    "arn:aws:sns:us-east-1:*:AppointmentTopic"
+                    "arn:aws:dynamodb:us-east-1:*:table/AppointmentTable",
+                    "arn:aws:sns:us-east-1:*:AppointmentTopic",
+                    {
+                      "Fn::GetAtt": [
+                        "SQSFromEventBridge",
+                        "Arn"
+                      ]
+                    }
                   ]
                 },
                 {
@@ -129,7 +138,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-ba990dcd-bd9c",
-          "S3Key": "serverless/rimac-appointment/production/1745597765972-2025-04-25T16:16:05.972Z/api.zip"
+          "S3Key": "serverless/rimac-appointment/production/1745887825091-2025-04-29T00:50:25.091Z/api.zip"
         },
         "Handler": "dist/lambda.handler",
         "Runtime": "nodejs18.x",
@@ -161,9 +170,9 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-ba990dcd-bd9c",
-          "S3Key": "serverless/rimac-appointment/production/1745597765972-2025-04-25T16:16:05.972Z/eventHandler.zip"
+          "S3Key": "serverless/rimac-appointment/production/1745887825091-2025-04-29T00:50:25.091Z/eventHandler.zip"
         },
-        "Handler": "dist/infraestructure/handlers/eventbridge.handler",
+        "Handler": "dist/infraestructure/handlers/sqs-eventbridge-handler.handler",
         "Runtime": "nodejs18.x",
         "FunctionName": "rimac-appointment-production-eventHandler",
         "MemorySize": 512,
@@ -188,24 +197,24 @@
         "EventHandlerLogGroup"
       ]
     },
-    "ApiLambdaVersions7hr3th3zQTo9rrSQ4kZ8oPrcRUKy0GdipgsSTmdw": {
+    "ApiLambdaVersionzwGNBDWIlmYCpaX73HB5j7Rd1JWoc5wDqlfx3qdoJ8": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "ApiLambdaFunction"
         },
-        "CodeSha256": "Nhu8uBqk4gW6Laym+FxYrbnlQPp0VtNKd8ErzQLFqYw="
+        "CodeSha256": "yToR3k//qn5VBoGIKQAKwgKnzuhWCJsInhjAUka7Ykc="
       }
     },
-    "EventHandlerLambdaVersionPOgiqhSbbw4Z2ZNukTUsDPivjA8dVx8eRB9y7zMjw": {
+    "EventHandlerLambdaVersionU4huB6izBaeLvag6Nd6p6hsIVsS1URCI86j21Bl6Gc8": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "EventHandlerLambdaFunction"
         },
-        "CodeSha256": "Nhu8uBqk4gW6Laym+FxYrbnlQPp0VtNKd8ErzQLFqYw="
+        "CodeSha256": "yToR3k//qn5VBoGIKQAKwgKnzuhWCJsInhjAUka7Ykc="
       }
     },
     "ApiGatewayRestApi": {
@@ -330,7 +339,7 @@
         "ApiLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayDeployment1745597696460": {
+    "ApiGatewayDeployment1745887727246": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -386,7 +395,7 @@
         "IamRoleLambdaExecution"
       ],
       "Properties": {
-        "BatchSize": 10,
+        "BatchSize": 1,
         "EventSourceArn": {
           "Fn::GetAtt": [
             "SQSFromEventBridge",
@@ -438,7 +447,37 @@
     "SQSFromEventBridge": {
       "Type": "AWS::SQS::Queue",
       "Properties": {
-        "QueueName": "sqs_eventbridge_to_nest"
+        "QueueName": "sqs_eventbridge_to_nest",
+        "VisibilityTimeout": 120
+      }
+    },
+    "SQSFromEventBridgePolicy": {
+      "Type": "AWS::SQS::QueuePolicy",
+      "Properties": {
+        "Queues": [
+          {
+            "Ref": "SQSFromEventBridge"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "Allow-EventBridge-SendMessage",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "events.amazonaws.com"
+              },
+              "Action": "SQS:SendMessage",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "SQSFromEventBridge",
+                  "Arn"
+                ]
+              }
+            }
+          ]
+        }
       }
     }
   },
@@ -452,7 +491,7 @@
     "ApiLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "ApiLambdaVersions7hr3th3zQTo9rrSQ4kZ8oPrcRUKy0GdipgsSTmdw"
+        "Ref": "ApiLambdaVersionzwGNBDWIlmYCpaX73HB5j7Rd1JWoc5wDqlfx3qdoJ8"
       },
       "Export": {
         "Name": "sls-rimac-appointment-production-ApiLambdaFunctionQualifiedArn"
@@ -461,7 +500,7 @@
     "EventHandlerLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "EventHandlerLambdaVersionPOgiqhSbbw4Z2ZNukTUsDPivjA8dVx8eRB9y7zMjw"
+        "Ref": "EventHandlerLambdaVersionU4huB6izBaeLvag6Nd6p6hsIVsS1URCI86j21Bl6Gc8"
       },
       "Export": {
         "Name": "sls-rimac-appointment-production-EventHandlerLambdaFunctionQualifiedArn"
@@ -499,6 +538,17 @@
       },
       "Export": {
         "Name": "rimac-appointment-topic-arn"
+      }
+    },
+    "SQSFromEventBridgeArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "SQSFromEventBridge",
+          "Arn"
+        ]
+      },
+      "Export": {
+        "Name": "rimac-appointment-SQSFromEventBridgeArn"
       }
     }
   }

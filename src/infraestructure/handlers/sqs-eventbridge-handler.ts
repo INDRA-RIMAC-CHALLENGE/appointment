@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { SQSEvent } from 'aws-lambda';
 import { initApplication } from 'src/app';
+import { UpdateAppointmentRequestDto } from 'src/application/dto/appointment/udpate-appointment.dto';
 import {
   Appointment,
   AppointmentStatus,
@@ -21,12 +22,20 @@ export const handler = async (event: SQSEvent) => {
 
   for (const record of event.Records) {
     const eventBridgeMessage = JSON.parse(record.body);
-    const detail = JSON.parse(eventBridgeMessage.Detail);
+    const detail = eventBridgeMessage.detail as Appointment;
 
-    const appointment = new Appointment(detail);
-    appointment.status = AppointmentStatus.COMPLETED;
+    console.log('EventBridge Message', eventBridgeMessage);
 
-    await updateAppointmentHandler.handler(appointment);
+    const appointment: UpdateAppointmentRequestDto = {
+      insuredId: detail.insuredId,
+      scheduleId: detail.scheduleId,
+      status: AppointmentStatus.COMPLETED,
+    };
+
+    const updatedAppointment =
+      await updateAppointmentHandler.handler(appointment);
+
+    console.log('Appointment actualizado', updatedAppointment);
   }
 
   return { statusCode: 200 };

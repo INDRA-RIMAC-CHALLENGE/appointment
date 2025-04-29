@@ -26,8 +26,8 @@ export class UpdateAppointmentHandler {
 
     if (appointmentDto.scheduleDetail)
       Object.keys(appointmentDto.scheduleDetail).forEach((key) => {
-        !appointmentDto.scheduleDetail[key] &&
-          delete appointmentDto.scheduleDetail[key];
+        !appointmentDto.scheduleDetail?.[key] &&
+          delete appointmentDto.scheduleDetail?.[key];
       });
 
     const record =

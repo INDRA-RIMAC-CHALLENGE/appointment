@@ -40,7 +40,12 @@ export class CreateAppointmentHandler {
       newAppointment,
     );
 
-    await this.snsService.publish(envConfig.AWS_SNS_TOPIC_ARN, newAppointment);
+    await this.snsService.publish(envConfig.AWS_SNS_TOPIC_ARN, newAppointment, {
+      countryISO: {
+        DataType: 'String',
+        StringValue: newAppointment.countryISO,
+      },
+    });
 
     this.logger.log('Notificacion publicada');
 

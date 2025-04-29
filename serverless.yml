@@ -18,9 +18,14 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
         - sns:Publish
+        - sqs:ReceiveMessage
+        - sqs:DeleteMessage
+        - sqs:GetQueueAttributes
       Resource:
-        - arn:aws:dynamodb:us-east-1:*:table/*
+        - arn:aws:dynamodb:us-east-1:*:table/AppointmentTable
         - arn:aws:sns:us-east-1:*:AppointmentTopic
+        - Fn::GetAtt: [SQSFromEventBridge, Arn]
+
   environment:
     NODE_ENV: production
     NODE_PORT: 3000
@@ -37,12 +42,14 @@ functions:
       - http:
           path: /{proxy+}
           method: ANY
+
   eventHandler:
-    handler: dist/infraestructure/handlers/eventbridge.handler
+    handler: dist/infraestructure/handlers/sqs-eventbridge-handler.handler
     events:
       - sqs:
           arn:
             Fn::GetAtt: [SQSFromEventBridge, Arn]
+          batchSize: 1
 
 plugins:
   - serverless-jetpack
@@ -89,6 +96,23 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: sqs_eventbridge_to_nest
+        VisibilityTimeout: 120
+
+    SQSFromEventBridgePolicy:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        Queues:
+          - Ref: SQSFromEventBridge
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Sid: Allow-EventBridge-SendMessage
+              Effect: Allow
+              Principal:
+                Service: events.amazonaws.com
+              Action: SQS:SendMessage
+              Resource:
+                Fn::GetAtt: [SQSFromEventBridge, Arn]
 
   Outputs:
     AppointmentTopicArn:
@@ -96,3 +120,9 @@ resources:
         Ref: AppointmentTopic
       Export:
         Name: rimac-appointment-topic-arn
+
+    SQSFromEventBridgeArn:
+      Value:
+        Fn::GetAtt: [SQSFromEventBridge, Arn]
+      Export:
+        Name: rimac-appointment-SQSFromEventBridgeArn

@@ -21,26 +21,26 @@ export class UpdateScheduleDetailDto {
   @Min(1)
   @IsOptional()
   @Type(() => Number)
-  centerId: number;
+  centerId?: number;
 
   @ApiProperty({ type: Number })
   @IsInt()
   @Min(1)
   @IsOptional()
   @Type(() => Number)
-  specialityId: number;
+  specialityId?: number;
 
   @ApiProperty({ type: Number })
   @IsInt()
   @Min(1)
   @IsOptional()
   @Type(() => Number)
-  medicId: number;
+  medicId?: number;
 
   @ApiProperty({ type: Number })
   @IsDateString()
   @IsOptional()
-  date: string;
+  date?: string;
 }
 
 export class UpdateAppointmentRequestDto {
@@ -59,15 +59,15 @@ export class UpdateAppointmentRequestDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => UpdateScheduleDetailDto)
-  scheduleDetail: UpdateScheduleDetailDto;
+  scheduleDetail?: UpdateScheduleDetailDto;
 
   @ApiProperty({ enum: AppointmentStatus })
   @IsEnum(AppointmentStatus)
   @IsOptional()
-  status: AppointmentStatus;
+  status?: AppointmentStatus;
 
   @ApiProperty({ enum: CountryISO })
   @IsEnum(CountryISO)
   @IsOptional()
-  countryISO: CountryISO;
+  countryISO?: CountryISO;
 }

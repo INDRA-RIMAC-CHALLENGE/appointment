@@ -17,11 +17,16 @@ export class SnsService {
         : new SNS();
   }
 
-  async publish(snsTopicArn: string, message: object) {
+  async publish(
+    snsTopicArn: string,
+    message: object,
+    messageAttributes: SNS.MessageAttributeMap | undefined = undefined,
+  ) {
     return this.sns
       .publish({
         TopicArn: snsTopicArn,
         Message: JSON.stringify(message),
+        MessageAttributes: messageAttributes,
       })
       .promise();
   }
